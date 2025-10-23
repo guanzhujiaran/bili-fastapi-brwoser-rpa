@@ -5,6 +5,12 @@ build/
 dist/
 wheels/
 *.egg-info
+user_data_dir/
+tests/
+.vscode/
+.rules/
+.cache/
+.codebuddy/
+.venv/
+.idea/
 
-# Virtual environments
-.venv

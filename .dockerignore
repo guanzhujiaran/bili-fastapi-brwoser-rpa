@@ -137,7 +137,6 @@ Thumbs.db
 
 # Project specific
 user_data_dir/
-logs/
 *.env
 .env.dev
 .env.prod
@@ -146,3 +145,8 @@ docker-compose.yml
 docker-compose.override.yml
 init.sql
 README.md
+tests/
+.rules/
+.cache/
+.codebuddy/
+.venv/
