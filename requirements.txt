@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+cryptography
+fastapi-cdn-host
+sqlmodel
+aiomysql
+crawlee[all]
+patchright
+loguru
