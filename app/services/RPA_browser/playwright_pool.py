@@ -4,20 +4,10 @@ import time
 from typing import Dict, Optional, Tuple
 from collections import defaultdict
 from datetime import datetime
-from dataclasses import dataclass
 
-from app.services.RPA_browser.base_engines import BaseUndetectedPlaywright
+from app.models.RPA_browser.dataclass_model import SessionInfo
+from app.services.RPA_browser.base.base_engines import BaseUndetectedPlaywright
 from patchright.async_api import BrowserContext
-
-
-@dataclass
-class SessionInfo:
-    """会话信息数据类"""
-    playwright_instance: BaseUndetectedPlaywright
-    browser_context: BrowserContext
-    context_manager: object
-    created_at: datetime
-    last_used: float = 0  # 最后使用时间戳
 
 
 class PlaywrightSessionPool:
@@ -43,7 +33,7 @@ class PlaywrightSessionPool:
 
         # 启动会话清理任务
         self._cleanup_task = None
-        self._start_cleanup_task()
+        # self._start_cleanup_task()
 
     def _start_cleanup_task(self):
         """启动会话清理任务"""
@@ -63,15 +53,15 @@ class PlaywrightSessionPool:
         """清理不活动的会话"""
         current_time = time.time()
         inactive_tokens = []
-        
+
         # 查找不活动的会话
         async with self._pool_lock:
             for browser_token, session_info in self._active_sessions.items():
                 # 检查会话是否超过30分钟未活动且不在远程控制状态
-                if (current_time - session_info.last_used > 30 * 60 and 
-                    not session_info.playwright_instance.is_remote_control_active):
+                if (current_time - session_info.last_used > 30 * 60 and
+                        not session_info.playwright_instance.is_remote_control_active):
                     inactive_tokens.append(browser_token)
-            
+
             # 清理不活动的会话
             for browser_token in inactive_tokens:
                 await self._close_session(browser_token)
@@ -80,12 +70,8 @@ class PlaywrightSessionPool:
         """关闭指定的会话"""
         if browser_token in self._active_sessions:
             session_info = self._active_sessions[browser_token]
-            try:
-                await session_info.context_manager.__aexit__(None, None, None)
-            except:
-                pass  # 忽略关闭时的异常
-            finally:
-                del self._active_sessions[browser_token]
+            await anext(session_info.browser_generator)
+            del self._active_sessions[browser_token]
 
     async def get_session(self, browser_token: uuid.UUID, headless: bool = True) -> Tuple[
         BaseUndetectedPlaywright, BrowserContext]:
@@ -135,21 +121,17 @@ class PlaywrightSessionPool:
                 browser_token=browser_token,
                 headless=headless
             )
-
             # 启动浏览器并获取上下文
-            browser_context_manager = playwright_instance.launch_browser()
-            browser_context = await browser_context_manager.__aenter__()
-
-            # 存储到活跃会话中，包含创建时间
+            browser_generator = playwright_instance.launch_browser_span()
+            browser_context = await anext(browser_generator)
             session_info = SessionInfo(
                 playwright_instance=playwright_instance,
                 browser_context=browser_context,
-                context_manager=browser_context_manager,
+                browser_generator=browser_generator,
                 created_at=datetime.now(),
                 last_used=time.time()
             )
             self._active_sessions[browser_token] = session_info
-
             return (playwright_instance, browser_context)
 
     async def release_session(self, browser_token: uuid.UUID):
@@ -260,3 +242,6 @@ def get_default_session_pool() -> PlaywrightSessionPool:
     if _default_session_pool is None:
         _default_session_pool = PlaywrightSessionPool()
     return _default_session_pool
+
+
+__all__ = ["get_default_session_pool"]

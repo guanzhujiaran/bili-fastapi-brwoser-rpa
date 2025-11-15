@@ -2,7 +2,6 @@ import os
 import sys
 import uuid
 import time
-from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
 from patchright.async_api import async_playwright, BrowserContext
@@ -64,8 +63,7 @@ class BaseUndetectedPlaywright:
         # 添加最后活动时间戳
         self.last_activity_timestamp = time.time()
 
-    @asynccontextmanager
-    async def launch_browser(self) -> AsyncGenerator[BrowserContext, Any]:
+    async def launch_browser_span(self) -> AsyncGenerator[BrowserContext, Any]:
         session_generator = get_session()
         session = await session_generator.__anext__()
         _ = await BrowserDBService.read_fingerprint(

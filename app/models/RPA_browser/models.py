@@ -3,7 +3,7 @@ import uuid
 from enum import StrEnum
 from typing import Annotated, Any, AsyncGenerator
 from pydantic import model_validator
-from sqlmodel import Field, SQLModel, Enum, Column
+from sqlmodel import Field, SQLModel, Enum, Column, select
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 from app.config import settings

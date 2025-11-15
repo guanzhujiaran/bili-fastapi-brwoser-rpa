@@ -5,13 +5,21 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = "==3.13.9"
 dependencies = [
+    "addict>=2.4.0",
     "aiomysql>=0.3.2",
     "crawlee[all]>=1.0.3",
     "cryptography>=46.0.3",
     "fastapi>=0.119.1",
     "fastapi-cdn-host>=0.9.2",
     "loguru>=0.7.3",
+    "modelscope[multi-modal]>=1.31.0",
+    "notebook>=7.4.7",
     "patchright>=1.55.2",
     "sqlmodel>=0.0.27",
+    "ultralytics>=8.3.228",
     "uvicorn[standard]>=0.38.0",
 ]
+
+[[tool.uv.index]]
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

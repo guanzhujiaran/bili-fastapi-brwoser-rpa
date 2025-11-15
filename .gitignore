@@ -13,4 +13,5 @@ tests/
 .codebuddy/
 .venv/
 .idea/
+/app/logs/*
 
